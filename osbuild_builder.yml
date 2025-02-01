@@ -1,0 +1,12 @@
+---
+- name: Run osbuild_builder role
+  become: true
+  hosts: all
+  vars:
+    builder_compose_type: qcow2
+    ansible_user_id: svc_ansible
+
+  tasks:
+    - name: Run the role
+      ansible.builtin.import_role:
+        name: infra.osbuild.builder

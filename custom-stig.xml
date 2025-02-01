@@ -1,0 +1,105 @@
+<tailoring xmlns="http://scap.nist.gov/schema/scap-core-1.2">
+  <!-- Reference to the profile being tailored -->
+  <group-ref href="xccdf_org.ssgproject.content_profile_stig"/>
+
+  <!-- Rule for disabling root login via SSH -->
+  <rule id="xccdf_org.ssgproject.content_rule_disable_ssh_root_login">
+    <state>unchecked</state> <!-- unchecked means disable -->
+  </rule>
+
+  <!-- Rule for enabling auditd -->
+  <rule id="xccdf_org.ssgproject.content_rule_enable_auditd">
+    <state>checked</state> <!-- checked means enable -->
+  </rule>
+
+  <!-- Rule for enabling password complexity -->
+  <rule id="xccdf_org.ssgproject.content_rule_accounts_password_pam_minlen">
+    <state>checked</state> <!-- checked means enable -->
+  </rule>
+
+  <!-- Rule for setting password expiration -->
+  <rule id="xccdf_org.ssgproject.content_rule_accounts_password_pam_maxrepeat">
+    <state>unchecked</state> <!-- unchecked means disable -->
+  </rule>
+
+  <!-- Rule to ensure SSH is running -->
+  <rule id="xccdf_org.ssgproject.content_rule_service_ssh_disabled">
+    <state>unchecked</state> <!-- unchecked means SSH must be enabled -->
+  </rule>
+
+  <!-- Rule to configure the system to not allow users to run unnecessary services -->
+  <rule id="xccdf_org.ssgproject.content_rule_disable_avahi-daemon">
+    <state>checked</state> <!-- checked means disable -->
+  </rule>
+
+  <!-- Rule to restrict console logins to authorized users -->
+  <rule id="xccdf_org.ssgproject.content_rule_accounts_umask_definitions">
+    <state>checked</state> <!-- checked means enforce umask 0777 -->
+  </rule>
+
+  <!-- Rule to configure SELinux to be in enforcing mode -->
+  <rule id="xccdf_org.ssgproject.content_rule_selinux_state">
+    <state>unchecked</state> <!-- checked means SELinux is enforcing -->
+  </rule>
+
+  <!-- Rule to disable IPv6 (if not required) -->
+  <rule id="xccdf_org.ssgproject.content_rule_network_ipv6_disabled">
+    <state>checked</state> <!-- checked means disable IPv6 -->
+  </rule>
+
+  <!-- Rule to ensure the system uses a strong cryptographic algorithm for SSH -->
+  <rule id="xccdf_org.ssgproject.content_rule_ssh_use_strong_crypto">
+    <state>checked</state> <!-- checked means use strong cryptography -->
+  </rule>
+
+  <!-- Rule to disable services that aren't required -->
+  <rule id="xccdf_org.ssgproject.content_rule_disable_telnet">
+    <state>checked</state> <!-- checked means disable telnet -->
+  </rule>
+
+  <!-- Rule to ensure audit logs are protected from tampering -->
+  <rule id="xccdf_org.ssgproject.content_rule_auditd_rotate_log_files">
+    <state>checked</state> <!-- checked means enable log rotation -->
+  </rule>
+
+  <!-- Rule to restrict access to specific users for logging -->
+  <rule id="xccdf_org.ssgproject.content_rule_file_permissions_audit_log">
+    <state>checked</state> <!-- checked means restrict access -->
+  </rule>
+
+  <!-- Rule to enforce a system-wide login timeout -->
+  <rule id="xccdf_org.ssgproject.content_rule_accounts_umask">
+    <state>unchecked</state> <!-- checked means enforce system umask -->
+  </rule>
+
+  <!-- Rule to ensure the audit log size is limited -->
+  <rule id="xccdf_org.ssgproject.content_rule_auditd_max_log_file">
+    <state>checked</state> <!-- checked means set log size limit -->
+  </rule>
+
+  <!-- Rule to enforce password history (do not reuse passwords) -->
+  <rule id="xccdf_org.ssgproject.content_rule_accounts_password_pam_remember">
+    <state>checked</state> <!-- checked means enforce password history -->
+  </rule>
+
+  <!-- Rule to ensure SSH uses only strong ciphers -->
+  <rule id="xccdf_org.ssgproject.content_rule_ssh_strong_ciphers">
+    <state>checked</state> <!-- checked means use strong ciphers -->
+  </rule>
+
+  <!-- Rule to disable unnecessary SUID/SGID files -->
+  <rule id="xccdf_org.ssgproject.content_rule_disable_suid_sgid_files">
+    <state>checked</state> <!-- checked means disable unnecessary files -->
+  </rule>
+
+  <!-- Rule to ensure cron is configured securely -->
+  <rule id="xccdf_org.ssgproject.content_rule_cron_minimal_permissions">
+    <state>checked</state> <!-- checked means ensure secure permissions for cron -->
+  </rule>
+
+  <!-- Rule to ensure all critical files are protected from unauthorized access -->
+  <rule id="xccdf_org.ssgproject.content_rule_file_permissions_var_log">
+    <state>checked</state> <!-- checked means enforce file permissions -->
+  </rule>
+</tailoring>
+

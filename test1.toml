@@ -1,0 +1,6 @@
+name = "test1"
+description = ""
+version = "0.0.0"
+modules = []
+groups = []
+distro = "rocky-9.5"

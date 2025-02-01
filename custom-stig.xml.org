@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xccdf xmlns="http://checklists.nist.gov/xccdf/1.2" id="xccdf_org.ssgproject.content_profile_stig">
+  <profile id="xccdf_org.ssgproject.content_profile_stig">
+    <description>Customized DISA STIG for RHEL 9</description>
+    
+    <!-- Enable a specific rule -->
+    <rule id="xccdf_org.ssgproject.content_rule_selinux_state" selected="true"/>
+
+    <!-- Disable a specific rule -->
+    <rule id="xccdf_org.ssgproject.content_rule_etc_group_permissions" selected="false"/>
+
+    <!-- Enable another rule -->
+    <rule id="xccdf_org.ssgproject.content_rule_gdm_disabled" selected="true"/>
+
+    <!-- Disable a set of rules or a group of checks -->
+    <group id="xccdf_org.ssgproject.content_group_filesystem_checks">
+      <rule id="xccdf_org.ssgproject.content_rule_noexec_tmp" selected="false"/>
+      <rule id="xccdf_org.ssgproject.content_rule_noexec_dev" selected="false"/>
+    </group>
+
+  </profile>
+</xccdf>
