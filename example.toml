@@ -1,0 +1,10 @@
+[vmware]
+host = "vcenter.example.com"
+username = "administrator@vsphere.local"
+password = "YourVCenterPassword"
+datacenter = "MyDatacenter"
+datastore = "MyDatastore"
+# Optional settings:
+folder = "OVAFiles"         # (optional) Target folder on the datastore
+port = 443                  # Defaults to 443 if omitted
+validate_certs = false      # Set to false if using self-signed certificates
