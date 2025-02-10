@@ -1,0 +1,47 @@
+stages:
+  - pre-build
+  - build
+# pre_build:
+  # stage: pre-build
+  # image: alpine:latest
+  # script:
+  #   - apk update
+  #   - apk add --no-cache git
+  #   - git --version # Verify installation
+    
+build_templates:
+  stage: build
+  image: alpine/ansible
+  script:
+    - apk update
+    - apk add --no-cache git
+    - git --version # Verify installation
+    - ansible-galaxy collection install git+https://github.com/nbeernink/infra.osbuild.git,add_ova_support
+    - export ANSIBLE_HOST_KEY_CHECKING=False  # Disable SSH host key checking
+    - |
+      echo "🔍 Searching for .toml template files..."
+      ls -l *.toml  # List all .toml files for debugging
+
+      # Loop over all .toml files dynamically
+      for template in *.toml; do
+        if [ -f "$template" ]; then
+          echo "🏗️ Building template: ${template}"
+          
+          # Run the playbook for the current template.
+          ansible-playbook -i inv osbuild_builder.yml -u svc_ansible \
+            -e "builder_blueprint_import_file=${template} ansible_ssh_pass=${SSH_PASSWORD} ansible_become_pass=${BECOME_PASSWORD}"
+
+          # Check for failure and skip if needed
+          if [ $? -ne 0 ]; then
+            echo "❌ Error building ${template}. Skipping..."
+            continue
+          fi
+
+          echo "⏳ Waiting for 6 minutes before the next build..."
+          sleep 360  # 720 seconds = 6 minutes
+        fi
+      done
+  tags:
+    - podman-runner    
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
