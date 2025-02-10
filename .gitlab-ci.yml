@@ -11,11 +11,11 @@ stages:
     
 build_templates:
   stage: build
-  image: alpine/ansible
+  # image: alpine/ansible
   script:
-    - apk update
-    - apk add --no-cache git
-    - git --version # Verify installation
+    # - apk update
+    # - apk add --no-cache git
+    # - git --version # Verify installation
     - ansible-galaxy collection install git+https://github.com/nbeernink/infra.osbuild.git,add_ova_support
     - export ANSIBLE_HOST_KEY_CHECKING=False  # Disable SSH host key checking
     - |
@@ -41,7 +41,7 @@ build_templates:
           sleep 360  # 720 seconds = 6 minutes
         fi
       done
-  tags:
-    - podman-runner    
+  # tags:
+  #   - podman-runner    
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
