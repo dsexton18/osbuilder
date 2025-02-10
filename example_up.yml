@@ -1,0 +1,25 @@
+- name: Upload OVA file to VMware Datastore
+  hosts: localhost
+  gather_facts: no
+  vars:
+    vcenter_hostname: "vcenter.example.com"
+    vcenter_username: "{{ lookup('env', 'VCENTER_USER') }}"
+    vcenter_password: "{{ lookup('env', 'VCENTER_PASS') }}"
+    validate_certs: false
+    datacenter: "MyDatacenter"
+    datastore: "MyDatastore"
+    src: "/path/to/generated/yourfile.ova"
+    dst: "[MyDatastore] ova/yourfile.ova"
+  tasks:
+    - name: Upload OVA file to datastore
+      community.vmware.vmware_file_transfer:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: "{{ validate_certs }}"
+        datacenter: "{{ datacenter }}"
+        datastore: "{{ datastore }}"
+        src: "{{ src }}"
+        dst: "{{ dst }}"
+        operation: upload
+      delegate_to: localhost
