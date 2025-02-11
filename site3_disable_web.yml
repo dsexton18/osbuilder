@@ -1,0 +1,17 @@
+- name: Run OSBuild Builder role without copying to /var/www/html
+  become: true
+  hosts: all
+  vars:
+    builder_compose_type: qcow2
+    ansible_user_id: ansible
+    builder_blueprint_src_path: /tmp/blueprint.toml
+    builder_blueprint_output_path: /tmp
+    builder_copy_to_web: false  # Hypothetical variable to disable copying
+
+  tasks:
+    - name: Run the OSBuild Builder role
+      ansible.builtin.import_role:
+        name: infra.osbuild.builder
+      vars:
+        builder_blueprint_import_file: "{{ pipeline_blueprint_file }}"  # Blueprint passed dynamically
+        builder_copy_to_web: false  # Prevent copying to /var/www/html
