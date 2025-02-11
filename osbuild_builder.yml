@@ -4,7 +4,7 @@
   hosts: all
   vars:
     builder_compose_type: qcow2
-    ansible_user_id: svc_ansible
+    ansible_user_id: ansible
 
   tasks:
     - name: Run the role
