@@ -1,0 +1,28 @@
+---
+- name: Run OSBuild Builder role
+  become: true
+  hosts: all
+  vars:
+    builder_compose_type: qcow2
+    ansible_user_id: ansible
+    builder_blueprint_src_path: /tmp/blueprint.toml  # Path to copy the blueprint file to
+    builder_blueprint_output_path: /tmp  # Temporary location for output files
+
+  tasks:
+    - name: Run the OSBuild Builder role
+      ansible.builtin.import_role:
+        name: infra.osbuild.builder
+      vars:
+        builder_blueprint_import_file: "{{ pipeline_blueprint_file }}"  # Blueprint passed dynamically
+
+    - name: Cleanup temporary files after the role runs
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ builder_blueprint_src_path }}"
+        - "/tmp/{{ builder_blueprint_name }}/{{ builder_blueprint_name }}-{{ builder_blueprint_output['current_version'] }}{{ '_ks' if 'simplified' not in builder_compose_type }}.{{ builder_compose_start_out['result']['output_type'] }}"
+      when: builder_blueprint_name is defined
+      tags:
+        - cleanup
+
