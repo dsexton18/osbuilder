@@ -1,0 +1,61 @@
+stages:
+  - build
+
+build_templates:
+  stage: build
+  script:
+    - export ANSIBLE_HOST_KEY_CHECKING=False  # Disable SSH host key checking
+    - set -x  # Enable shell trace to log all commands executed
+    - |
+      echo "🔍 Searching for .toml template files..."
+      ls -l *.toml  # List all .toml files for debugging
+
+      # Loop over all .toml files dynamically
+      for template in *.toml; do
+        if [ -f "$template" ]; then
+          echo "🏗️ Building template: ${template}"
+
+          # Print the content of the .toml file to debug its format
+          echo "📄 Template content:"
+          cat "$template"
+
+          # Extract the name from the .toml file
+          builder_blueprint_name=$(grep -oP '^\s*name\s*=\s*"\K[^"]+' "$template")
+
+          # Check if we found builder_blueprint_name
+          if [ -z "$builder_blueprint_name" ]; then
+            echo "⚠️ name not found in ${template}. Skipping..."
+            continue
+          else
+            echo "✅ builder_blueprint_name extracted: ${builder_blueprint_name}"
+          fi
+
+          # Run the playbook for the current template and capture output
+          echo "🔧 Running ansible-playbook for ${template}..."
+          ansible-playbook -i inv osbuild_builder.yml -u svc_ansible \
+            -e "builder_blueprint_import_file=${template} builder_blueprint_name=${builder_blueprint_name} ansible_ssh_pass=${SSH_PASSWORD} ansible_become_pass=${BECOME_PASSWORD}" \
+            -v 2>&1 | tee /tmp/ansible_output.log
+
+          exit_code=$?
+
+          # Check if ansible-playbook succeeded and handle failure
+          if [ $exit_code -ne 0 ]; then
+            echo "❌ Error building ${template}. Skipping..."
+            echo "🔴 Ansible output:"
+            cat /tmp/ansible_output.log  # Ensure that the log file is captured
+            continue
+          fi
+
+          # Check if the blueprint was created or not, based on the logs
+          if ! grep -q "Blueprint creation successful" /tmp/ansible_output.log; then
+            echo "❌ Blueprint creation failed for ${builder_blueprint_name}. Skipping..."
+            continue
+          fi
+
+          # Wait before building the next template
+          echo "⏳ Waiting for 6 minutes before the next build..."
+          sleep 460  # 6 minutes
+        fi
+      done
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
