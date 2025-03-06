@@ -89,3 +89,6 @@
 
 
         
+ipa cert-show --download > ipa-cert-chain.pem
+
+openssl s_client -connect example.com:443 -showcerts 2>/dev/null | openssl x509 -noout -text
