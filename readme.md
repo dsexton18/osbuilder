@@ -42,3 +42,6 @@ Summary
     Configuration Location: Update /etc/osbuild-composer/composer.toml (or the applicable config file) with a [vmware] section.
     Parameters to Set: Provide your vCenter host, username, password, datacenter, datastore, and any optional parameters (like folder, port, or certificate validation settings).
     Activation: After a service restart, the “Upload to VMware” option in Cockpit will use these settings to automatically transfer the generated OVA once the image build is complete.
+
+openssl s_client -connect example.com:443 -showcerts 2>/dev/null | openssl x509 -noout -text|less
+
