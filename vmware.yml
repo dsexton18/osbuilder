@@ -1,0 +1,91 @@
+- name: Upload and Convert OVA to Template
+  hosts: localhost
+  gather_facts: no
+  vars:
+    vcenter_hostname: "vcenter.local"
+    vcenter_username: "administrator@vsphere.local"
+    vcenter_password: "your-password"
+    datacenter_name: "Datacenter"
+    cluster_name: "Cluster1"
+    datastore_name: "datastore1"
+    network_name: "VM Network"
+    ova_file_path: "/path/to/my-vm.ova"
+    vm_name: "temp-vm"
+    template_name: "my-template"
+
+  tasks:
+    - name: Deploy VM from OVA
+      community.vmware.vmware_deploy_ovf:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: no
+        name: "{{ vm_name }}"
+        datacenter: "{{ datacenter_name }}"
+        cluster: "{{ cluster_name }}"
+        datastore: "{{ datastore_name }}"
+        networks:
+          "VM Network": "{{ network_name }}"
+        ovf: "{{ ova_file_path }}"
+        wait_for_ip_address: no
+
+    - name: Power Off VM Before Converting to Template
+      community.vmware.vmware_guest_powerstate:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: no
+        name: "{{ vm_name }}"
+        state: poweredoff
+
+    - name: Convert VM to Template
+      community.vmware.vmware_guest:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: no
+        name: "{{ vm_name }}"
+        template: yes
+        state: present
+        template_name: "{{ template_name }}"
+
+
+
+- name: Upload and Convert OVA to Template with govc
+  hosts: localhost
+  tasks:
+    - name: Retrieve OVA from OSBuild
+      ansible.builtin.get_url:
+        url: "http://osbuild-server.local/path/to/generated.ova"
+        dest: "{{ ova_dest_path }}"
+        mode: '0644'
+  
+    - name: Deploy OVA
+      command: >
+        govc import.ova -options=options.json -name=temp-vm /path/to/my-vm.ova
+      environment:
+        GOVC_URL: "https://vcenter.local"
+        GOVC_USERNAME: "administrator@vsphere.local"
+        GOVC_PASSWORD: "your-password"
+        GOVC_INSECURE: "1"
+
+    - name: Power off the VM
+      command: >
+        govc vm.power -off temp-vm
+      environment:
+        GOVC_URL: "https://vcenter.local"
+        GOVC_USERNAME: "administrator@vsphere.local"
+        GOVC_PASSWORD: "your-password"
+        GOVC_INSECURE: "1"
+
+    - name: Convert VM to Template
+      command: >
+        govc vm.markastemplate temp-vm
+      environment:
+        GOVC_URL: "https://vcenter.local"
+        GOVC_USERNAME: "administrator@vsphere.local"
+        GOVC_PASSWORD: "your-password"
+        GOVC_INSECURE: "1"
+
+
+        
