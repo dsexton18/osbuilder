@@ -1,0 +1,18 @@
+     name: reg host
+  hosts: all
+  vars:
+    rhc_repositories:
+      - {name: "rhel-9-for-x86_64-baseos-rpms", state: enabled}
+      - {name: "rhel-9-for-x86_64-appstream-rpms", state: enabled}
+      - {name: "satellite-utils-6.16-for-rhel-9-x86_64-rpms", state: enabled}
+      - {name: "satellite-maintenance-6.16-for-rhel-9-x86_64-rpms", state: enabled}
+      - {name: "satellite-6.16-for-rhel-9-x86_64-rpms", state: enabled}
+  tasks:
+    - name: Register available content.
+      redhat.rhel_system_roles.redhat_subscription:
+        state: present
+#        auto_attach: true
+        activationkey: 'activation-key-here'
+        org_id: 'org_id_here'
+  roles:
+    - redhat.rhel_system_roles.rhc
