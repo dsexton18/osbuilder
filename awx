@@ -1,0 +1,8 @@
+{
+  "extra_vars": {
+    "host_name": "{{ host.name }}",
+    "host_ip": "{{ host.ip }}",
+    "inventory": "Your-Inventory-Name",
+    "host_inventory_id": "{{ host.id }}"
+  }
+}
