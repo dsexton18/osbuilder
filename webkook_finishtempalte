@@ -1,0 +1,47 @@
+
+
+custom webhook tempalte
+<%#
+name: AAP Webhook Payload
+description: Custom webhook template for triggering AAP job templates.
+snippet: false
+model: WebhookTemplate
+-%>
+{
+  "limit": "{{ host.name }}",
+  "extra_vars": {
+    "ansible_host": "{{ host.ip }}",
+    "foreman_hostgroup": "{{ host.hostgroup }}",
+    "foreman_environment": "{{ host.environment }}"
+  }
+}
+
+
+ -H "X-Gitlab-Token: " 
+
+
+test
+curl -k -X POST "https://aap.controller0/api/v2/job_templates/7/gitlab/" \
+     -H "X-Gitlab-Token: " \
+     -H "Content-Type: application/json" \
+     -d '{
+           "limit": "test-host",
+           "extra_vars": {
+             "ansible_host": "IP_here"
+           }
+         }'
+
+finish tempalte
+
+#!/bin/bash
+curl -k -X POST "https://aap.controller02.corp.lan/api/v2/job_templates/<TEMPLATE_ID>/launch/" \
+     -H "X-Webhook-Token: <your_webhook_key>" \
+     -H "Content-Type: application/json" \
+     -d '{
+           "limit": "{{ host.name }}",
+           "extra_vars": {
+             "ansible_host": "{{ host.ip }}",
+             "foreman_hostgroup": "{{ host.hostgroup }}",
+             "foreman_environment": "{{ host.environment }}"
+           }
+         }'
