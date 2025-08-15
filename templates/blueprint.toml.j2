@@ -1,0 +1,33 @@
+name = "{{ blueprint_name }}"
+description = "{{ description }}"
+version = "0.0.1"
+groups = []
+containers = []
+
+{% for pkg in packages %}
+[[packages]]
+name = "{{ pkg }}"
+{% endfor %}
+
+[customizations]
+fips = {{ fips | default(false) | lower }}
+
+{% for user in users %}
+[[customizations.user]]
+name = "{{ user.name }}"
+groups = {{ user.groups }}
+{% endfor %}
+
+{% for fs in filesystems %}
+[[customizations.filesystem]]
+mountpoint = "{{ fs.mountpoint }}"
+minsize = "{{ fs.minsize }}"
+{% endfor %}
+
+{% for f in files %}
+[[customizations.files]]
+path = "{{ f.path }}"
+user = "{{ f.user }}"
+group = "{{ f.group }}"
+data = """{{ f.data | trim }}"""
+{% endfor %}
