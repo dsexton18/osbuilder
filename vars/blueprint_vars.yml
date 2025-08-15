@@ -23,5 +23,5 @@ files:
     data: |
       datasource:
         NoCloud:
-          seedfrom: http://foreman.lnx.corp.lan/user-data
+          seedfrom: http://foreman.example.com/user-data
 fips: true
