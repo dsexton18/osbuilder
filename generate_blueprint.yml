@@ -1,0 +1,15 @@
+---
+- name: Generate OSBuild blueprint from vars
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - "../vars/blueprint_vars.yml"
+  tasks:
+
+    - name: Render blueprint TOML
+      template:
+        src: "../templates/blueprint.toml.j2"
+        dest: "/tmp/{{ blueprint_name }}.toml"
+
+    - name: Push blueprint to OSBuild
+      command: composer-cli blueprints push /tmp/{{ blueprint_name }}.toml
