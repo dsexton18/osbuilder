@@ -1,0 +1,27 @@
+blueprint_name: "my-blueprint"
+description: "Generated via Ansible vars file"
+packages:
+  - vim-enhanced
+  - ansible-core
+  - git
+users:
+  - name: bob
+    groups: ["wheel", "users"]
+filesystems:
+  - mountpoint: "/"
+    minsize: "5 GiB"
+  - mountpoint: "/var"
+    minsize: "2 GiB"
+  - mountpoint: "/home"
+    minsize: "1 GiB"
+  - mountpoint: "swap"
+    minsize: "8 GiB"
+files:
+  - path: "/etc/foobar"
+    user: "root"
+    group: "root"
+    data: |
+      datasource:
+        NoCloud:
+          seedfrom: http://foreman.lnx.corp.lan/user-data
+fips: true
