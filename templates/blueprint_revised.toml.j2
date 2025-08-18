@@ -1,0 +1,77 @@
+name = "{{ blueprint_name }}"
+description = "{{ description }}"
+version = "0.0.1"
+
+{% if groups is defined and groups|length > 0 %}
+groups = {{ groups }}
+{% else %}
+groups = []
+{% endif %}
+
+{% if containers is defined and containers|length > 0 %}
+containers = {{ containers }}
+{% else %}
+containers = []
+{% endif %}
+
+{% for pkg in packages %}
+[[packages]]
+name = "{{ pkg }}"
+{% endfor %}
+
+{% set has_customizations = fips or (users|length > 0) or (filesystems|length > 0) or (files|length > 0) 
+   or (services is defined and services|length > 0) or (firewall_services is defined and firewall_services|length > 0) 
+   or openscap is defined %}
+
+{% if has_customizations %}
+[customizations]
+
+{% if fips %}
+fips = {{ fips | lower }}
+{% endif %}
+
+{% if services is defined and services|length > 0 %}
+[customizations.services]
+enabled = {{ services.enabled }}
+disabled = {{ services.disabled }}
+{% endif %}
+
+{% if firewall_services is defined and firewall_services|length > 0 %}
+[customizations.firewall.services]
+enabled = {{ firewall_services.enabled }}
+disabled = {{ firewall_services.disabled }}
+{% endif %}
+
+{% if openscap is defined %}
+[customizations.openscap]
+profile_id = "{{ openscap.profile_id }}"
+datastream = "{{ openscap.datastream }}"
+{% endif %}
+
+{% for user in users %}
+[[customizations.user]]
+name = "{{ user.name }}"
+groups = {{ user.groups }}
+{% if user.password is defined %}
+password = "{{ user.password }}"
+{% endif %}
+{% if user.key is defined %}
+key = "{{ user.key }}"
+{% endif %}
+{% endfor %}
+
+{% for fs in filesystems %}
+[[customizations.filesystem]]
+mountpoint = "{{ fs.mountpoint }}"
+minsize = "{{ fs.minsize }}"
+{% endfor %}
+
+{% for f in files %}
+[[customizations.files]]
+path = "{{ f.path }}"
+user = "{{ f.user }}"
+group = "{{ f.group }}"
+data = """{{ f.data | trim }}"""
+{% endfor %}
+
+{% endif %}
