@@ -1,0 +1,93 @@
+# -------------------------
+# Blueprint metadata
+# -------------------------
+name = "{{ blueprint_name }}"           # Required: the name of the blueprint
+description = "{{ description }}"      # Optional: description text
+version = "0.0.1"                      # Default version
+groups = []                             # Blueprint groups (empty by default)
+containers = []                         # Container definitions (empty by default)
+
+# -------------------------
+# Packages section
+# -------------------------
+{% for pkg in packages %}
+[[packages]]
+name = "{{ pkg }}"                      # Each package added to the blueprint
+{% endfor %}
+
+# -------------------------
+# Customizations section
+# -------------------------
+[customizations]
+fips = {{ fips | default(false) | lower }}   # Enable FIPS if specified (default false)
+
+# -------------------------
+# Users
+# -------------------------
+{% for user in users %}
+[[customizations.user]]
+name = "{{ user.name }}"                        # Required: username
+{% if user.groups is defined and user.groups %}
+groups = {{ user.groups }}                      # Optional: groups the user belongs to
+{% endif %}
+{% if user.password is defined and user.password %}
+password = "{{ user.password }}"                # Optional: password hash
+{% endif %}
+{% if user.key is defined and user.key %}
+key = "{{ user.key }}"                          # Optional: SSH public key
+{% endif %}
+{% endfor %}
+
+# -------------------------
+# Filesystems
+# -------------------------
+{% for fs in filesystems %}
+[[customizations.filesystem]]
+mountpoint = "{{ fs.mountpoint }}"             # Required: mount point, e.g. '/', '/var'
+minsize = "{{ fs.minsize }}"                   # Required: minimum size for filesystem
+{% if fs.fstype is defined and fs.fstype %}
+fstype = "{{ fs.fstype }}"                     # Optional: filesystem type, e.g., ext4, xfs
+{% endif %}
+{% endfor %}
+
+# -------------------------
+# Files to create in image
+# -------------------------
+{% for f in files %}
+[[customizations.files]]
+path = "{{ f.path }}"                           # Required: path of file to create
+{% if f.user is defined %}
+user = "{{ f.user }}"                           # Optional: owner user
+{% endif %}
+{% if f.group is defined %}
+group = "{{ f.group }}"                         # Optional: owner group
+{% endif %}
+# Multiline content preserved exactly; datasource lines start at column 0
+data = """{{ f.data | trim | indent(0, true) }}"""
+{% endfor %}
+
+# -------------------------
+# Services
+# -------------------------
+{% if services is defined and services %}
+[customizations.services]
+enabled = {{ services.enabled | default([]) }}   # Optional: list of enabled services
+disabled = {{ services.disabled | default([]) }} # Optional: list of disabled services
+{% endif %}
+
+# -------------------------
+# Firewall
+# -------------------------
+{% if firewall_services is defined and firewall_services %}
+[customizations.firewall]
+services = {{ firewall_services }}               # Optional: list of firewall services to allow
+{% endif %}
+
+# -------------------------
+# OpenSCAP
+# -------------------------
+{% if openscap is defined and openscap %}
+[customizations.openscap]
+profile_id = "{{ openscap.profile_id }}"         # Optional: SCAP profile ID
+datastream = "{{ openscap.datastream }}"        # Optional: SCAP datastream file
+{% endif %}
