@@ -1,0 +1,78 @@
+# image: alpine/ansible
+
+stages:
+  - build
+  - upload-template
+
+build_templates:
+  # image: alpine/ansible
+  stage: build
+
+  script:
+    - export ANSIBLE_HOST_KEY_CHECKING=False
+    - set -x
+    # - apk add --no-cache grep ansible git
+   # - ansible-galaxy collection install redhat-cop.infra.osbuild  # Install the required role
+    - ansible-galaxy collection install git+https://github.com/nbeernink/infra.osbuild.git/
+
+    - |
+      echo '🔍 Searching for .toml template files...'
+      ls -l *.toml
+
+      for template in *.toml; do
+        if [ -f "$template" ]; then
+          echo "🏗️ Building template: ${template}"
+          echo "📄 Template content:"
+          cat "$template"
+
+          builder_blueprint_name=$(grep -o 'name = "[^"]*"' "$template" | sed 's/name = "//' | sed 's/"//')
+
+          if [ -z "$builder_blueprint_name" ]; then
+            echo "⚠️ name not found in ${template}. Skipping..."
+            continue
+          else
+            echo "✅ builder_blueprint_name extracted: ${builder_blueprint_name}"
+          fi
+
+          ansible --version
+          ansible-playbook -i inv osbuild_builder.yml -u foo \
+            -e "builder_blueprint_import_file=${template} builder_blueprint_name=${builder_blueprint_name} ansible_ssh_pass=${SSH_PASSWORD} ansible_become_pass=${BECOME_PASSWORD}" -v 2>&1 | tee /tmp/ansible_output.log
+
+          exit_code=$?
+
+          if [ $exit_code -ne 0 ]; then
+            echo "❌ Error building ${template}. Skipping..."
+            echo "🔴 Ansible output:"
+            cat /tmp/ansible_output.log
+            continue
+          fi
+
+          if ! grep -q "Blueprint creation successful" /tmp/ansible_output.log; then
+            echo "❌ Blueprint creation failed for ${builder_blueprint_name}. Skipping..."
+            continue
+          fi
+
+          echo "⏳ Waiting for 6 minutes before the next build..."
+          sleep 460
+        fi
+      done
+  # tags:
+  #   - podman-runner
+
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+
+upload_template:
+  stage: upload-template
+  # image: alpine/ansible
+  script:
+    - echo "[localhost]" > inventory
+    - echo "127.0.0.1 ansible_connection=local" >> inventory
+        # Ensure proxmoxer is installed
+    - pip install proxmoxer
+    - ansible-playbook -i inventory upload_main.yml -e "ansible_ssh_pass=${SSH_PASSWORD} ansible_ssh_user=root" -v
+  rules:
+    - when: on_success
+
+
+
