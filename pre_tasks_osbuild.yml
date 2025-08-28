@@ -23,3 +23,15 @@
     - role: infra.osbuild.builder
       vars:
         # your role vars go here
+
+
+ansible -m setup localhost | grep ansible_python_interpreter
+python3.12 -m pip install tomli
+or rpm package
+python3-tomli
+python3-toml
+
+[buildhost]
+localhost ansible_connection=local ansible_python_interpreter=/usr/bin/python3.12
+validate import works
+python3.12 -c "import toml; print(toml.__version__)"
