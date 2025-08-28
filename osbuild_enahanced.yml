@@ -1,0 +1,36 @@
+---
+- name: OSBuild image build (local or remote)
+  hosts: buildhosts
+  become: true
+
+  pre_tasks:
+    - name: Gather minimal facts to detect Python
+      setup:
+        gather_subset:
+          - '!all'
+          - '!min'
+          - 'python'
+
+    - name: Ensure pip is installed for the detected Python
+      package:
+        name: >
+          {{
+            'python3-pip'
+            if ansible_facts['python']['version']['major'] == 3
+            else 'python-pip'
+          }}
+        state: present
+
+    - name: Install TOML libraries for detected Python
+      pip:
+        name:
+          - toml==0.10.2
+          - tomli==2.0.1
+        executable: "{{ ansible_facts['python']['executable'] | dirname }}/pip{{ ansible_facts['python']['version']['major'] }}"
+
+  roles:
+    - role: infra.osbuild.builder
+      vars:
+        blueprint_file: "/path/to/blueprint.toml"
+        image_type: "qcow2"
+        output_directory: "/var/lib/osbuild-composer"
