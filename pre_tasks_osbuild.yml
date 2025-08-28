@@ -1,0 +1,25 @@
+- name: Build image with infra.osbuild.builder
+  hosts: localhost
+  connection: local
+  vars:
+    ansible_python_interpreter: /usr/bin/python3.12
+
+  pre_tasks:
+    - name: Ensure pip is installed for Python 3.12
+      package:
+        name: python3.12-pip
+        state: present
+      become: true
+
+    - name: Ensure toml and tomli modules are installed
+      pip:
+        name:
+          - toml
+          - tomli
+        executable: pip3.12
+      become: true
+
+  roles:
+    - role: infra.osbuild.builder
+      vars:
+        # your role vars go here
